@@ -2,7 +2,9 @@ const { chooseMove } = require("./strategy");
 
 function moveHandler(state) {
   if (!state || typeof state !== "object") {
-    throw new Error("Estado inválido");
+    const error = new Error("Estado inválido");
+error.statusCode = 400;
+throw error;
   }
 
   if (
@@ -10,7 +12,9 @@ function moveHandler(state) {
     state.jugadorActivo === undefined ||
     state.tablero === undefined
   ) {
-    throw new Error("Faltan datos del estado");
+    const error = new Error("Faltan datos del estado");
+error.statusCode = 400;
+throw error;
   }
 
   const movement = chooseMove(state);
