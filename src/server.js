@@ -8,11 +8,17 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 app.post("/move", (req, res) => {
-  const state = req.body;
+  try {
+    const state = req.body;
 
-  const movement = moveHandler(state);
+    const movement = moveHandler(state);
 
-  res.status(200).json(movement);
+    res.status(200).json(movement);
+  } catch (error) {
+    res.status(400).json({
+      error: error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {
