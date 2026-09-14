@@ -7,6 +7,12 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok"
+  });
+});
+
 app.post("/move", (req, res) => {
   try {
     const state = req.body;
@@ -15,12 +21,12 @@ app.post("/move", (req, res) => {
 
     res.status(200).json(movement);
   } catch (error) {
-  const statusCode = error.statusCode || 500;
+    const statusCode = error.statusCode || 500;
 
-  res.status(statusCode).json({
-    error: error.message
-  });
-}
+    res.status(statusCode).json({
+      error: error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {
