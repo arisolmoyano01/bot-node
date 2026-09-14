@@ -1,0 +1,45 @@
+{
+  "turno": 3,
+  "jugadorActivo": "A",
+  "dado": 2,
+  "tablero": {
+    "filas": 10,
+    "columnas": 10
+  },
+  "piezas": [
+    {
+      "id": "A1",
+      "jugador": "A",
+      "fila": 0,
+      "columna": 5
+    },
+    {
+      "id": "B1",
+      "jugador": "B",
+      "fila": 5,
+      "columna": 5
+    }
+  ],
+  "casas": [
+    {
+      "fila": 8,
+      "columna": 5
+    },
+    {
+      "fila": 3,
+      "columna": 2
+    },
+    {
+      "fila": 4,
+      "columna": 8
+    },
+    {
+      "fila": 7,
+      "columna": 1
+    },
+    {
+      "fila": 6,
+      "columna": 7
+    }
+  ]
+}

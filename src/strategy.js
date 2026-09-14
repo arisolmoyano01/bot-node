@@ -24,6 +24,32 @@ function calcularDestino(fila, columna, direccion, pasos) {
   };
 }
 
+function estaOcupada(destino, piezas, piezaActual) {
+  return piezas.some(
+    pieza =>
+      pieza.id !== piezaActual.id &&
+      pieza.fila === destino.fila &&
+      pieza.columna === destino.columna
+  );
+}
+
+function calcularDistancia(posicion, casa) {
+  const diferenciaFila = Math.abs(posicion.fila - casa.fila);
+  const diferenciaColumna = Math.abs(posicion.columna - casa.columna);
+
+  const distanciaFila = Math.min(
+    diferenciaFila,
+    10 - diferenciaFila
+  );
+
+  const distanciaColumna = Math.min(
+    diferenciaColumna,
+    10 - diferenciaColumna
+  );
+
+  return distanciaFila + distanciaColumna;
+}
+
 function chooseMove(state) {
   const pieza = state.piezas.find(
     p => p.jugador === state.jugadorActivo
@@ -31,6 +57,7 @@ function chooseMove(state) {
 
   const direcciones = ["N", "S", "E", "O"];
 
+  // Primero intenta conquistar una casa
   for (const direccion of direcciones) {
     const destino = calcularDestino(
       pieza.fila,
@@ -38,6 +65,16 @@ function chooseMove(state) {
       direccion,
       state.dado
     );
+
+    const ocupada = estaOcupada(
+      destino,
+      state.piezas,
+      pieza
+    );
+
+    if (ocupada) {
+      continue;
+    }
 
     const hayCasa = state.casas.some(
       casa =>
@@ -53,10 +90,46 @@ function chooseMove(state) {
     }
   }
 
-  return {
-    pieceId: pieza.id,
-    direction: "N"
-  };
+  // Si no puede conquistar, busca acercarse a una casa
+  let mejorDireccion = null;
+  let mejorDistancia = Infinity;
+
+  for (const direccion of direcciones) {
+    const destino = calcularDestino(
+      pieza.fila,
+      pieza.columna,
+      direccion,
+      state.dado
+    );
+
+    const ocupada = estaOcupada(
+      destino,
+      state.piezas,
+      pieza
+    );
+
+    if (ocupada) {
+      continue;
+    }
+
+    for (const casa of state.casas) {
+      const distancia = calcularDistancia(destino, casa);
+
+      if (distancia < mejorDistancia) {
+        mejorDistancia = distancia;
+        mejorDireccion = direccion;
+      }
+    }
+  }
+
+  if (mejorDireccion !== null) {
+    return {
+      pieceId: pieza.id,
+      direction: mejorDireccion
+    };
+  }
+
+  throw new Error("No hay movimientos válidos");
 }
 
 module.exports = { chooseMove };
