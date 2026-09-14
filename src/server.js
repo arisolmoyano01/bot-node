@@ -3,7 +3,7 @@ const { moveHandler } = require("./moveHandler");
 
 const app = express();
 
-app.use(express.json());
+// Middleware de logs
 app.use((req, res, next) => {
   const inicio = Date.now();
 
@@ -18,15 +18,20 @@ app.use((req, res, next) => {
   next();
 });
 
+// Permite recibir cuerpos JSON
+app.use(express.json());
+
 const PORT = process.env.PORT || 3000;
 
+// GET /health
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok"
   });
 });
 
-app.post("/move", (req, res) => {
+// POST /move
+app.post("/move", (req, res, next) => {
   try {
     const state = req.body;
 
@@ -34,16 +39,32 @@ app.post("/move", (req, res) => {
 
     res.status(200).json(movement);
   } catch (error) {
-    const statusCode = error.statusCode || 500;
-
-    res.status(statusCode).json({
-      error: error.message
-    });
+    next(error);
   }
 });
+
+// Ruta inexistente
 app.use((req, res) => {
   res.status(404).json({
     error: "Ruta no encontrada"
+  });
+});
+
+// Middleware centralizado de errores
+app.use((error, req, res, next) => {
+  if (error.type === "entity.parse.failed") {
+    return res.status(400).json({
+      error: "JSON inválido"
+    });
+  }
+
+  const statusCode = error.statusCode || 500;
+
+  res.status(statusCode).json({
+    error:
+      statusCode === 500
+        ? "Error interno del servidor"
+        : error.message
   });
 });
 

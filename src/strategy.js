@@ -1,5 +1,5 @@
 function chooseMove(state) {
-  
+
 
   return {
     pieceId: "A1",
@@ -7,4 +7,3 @@ function chooseMove(state) {
   };
 }
 
-module.exports = { chooseMove };
