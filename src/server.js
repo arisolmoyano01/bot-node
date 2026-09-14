@@ -41,6 +41,11 @@ app.post("/move", (req, res) => {
     });
   }
 });
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Ruta no encontrada"
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor iniciado en el puerto ${PORT}`);
