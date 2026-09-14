@@ -4,6 +4,19 @@ const { moveHandler } = require("./moveHandler");
 const app = express();
 
 app.use(express.json());
+app.use((req, res, next) => {
+  const inicio = Date.now();
+
+  res.on("finish", () => {
+    const tiempo = Date.now() - inicio;
+
+    console.log(
+      `${req.method} ${req.originalUrl} - ${res.statusCode} - ${tiempo}ms`
+    );
+  });
+
+  next();
+});
 
 const PORT = process.env.PORT || 3000;
 
