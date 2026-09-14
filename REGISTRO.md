@@ -36,3 +36,25 @@ El comando también reconstruyó node_modules utilizando las versiones registrad
 npm install es más flexible y se utiliza habitualmente durante el desarrollo.
 
 npm ci realiza una instalación limpia basada en package-lock.json, por lo que es útil cuando se necesita reproducir la misma instalación, por ejemplo en integración continua o despliegues.
+
+
+## Estrategia inicial del bot
+
+La estrategia del bot analiza el estado recibido por el endpoint POST /move.
+
+Actualmente realiza los siguientes pasos:
+
+1. Identifica las fichas correspondientes al jugador activo.
+2. Utiliza el valor del dado para calcular la posición final posible de cada ficha.
+3. Considera las cuatro direcciones: norte, sur, este y oeste.
+4. Tiene en cuenta que el tablero es toroidal.
+5. Descarta los movimientos cuya posición final se encuentre ocupada por otra ficha.
+6. Prioriza movimientos que permiten conquistar una casa neutral inmediatamente.
+7. Si ninguna ficha puede conquistar una casa, selecciona el movimiento válido que deje una ficha a menor distancia de alguna casa neutral.
+8. Si existen varias fichas, analiza las posibilidades de todas antes de elegir el movimiento.
+
+### Limitación actual
+
+El contrato actual del endpoint /move devuelve un único objeto con pieceId y direction.
+
+Las reglas del juego indican que todas las fichas de un jugador deben moverse durante su turno. Para implementar completamente esta regla será necesario conocer cómo el motor solicitará o recibirá los movimientos de múltiples fichas.
