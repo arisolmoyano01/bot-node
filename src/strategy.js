@@ -51,82 +51,77 @@ function calcularDistancia(posicion, casa) {
 }
 
 function chooseMove(state) {
-  const pieza = state.piezas.find(
-    p => p.jugador === state.jugadorActivo
+  const piezasPropias = state.piezas.filter(
+    pieza => pieza.jugador === state.jugadorActivo
   );
 
   const direcciones = ["N", "S", "E", "O"];
 
-  // Primero intenta conquistar una casa
-  for (const direccion of direcciones) {
-    const destino = calcularDestino(
-      pieza.fila,
-      pieza.columna,
-      direccion,
-      state.dado
-    );
+  // Prioridad 1:
+  // buscar si alguna ficha puede conquistar una casa ahora
+  for (const pieza of piezasPropias) {
+    for (const direccion of direcciones) {
+      const destino = calcularDestino(
+        pieza.fila,
+        pieza.columna,
+        direccion,
+        state.dado
+      );
 
-    const ocupada = estaOcupada(
-      destino,
-      state.piezas,
-      pieza
-    );
+      if (estaOcupada(destino, state.piezas, pieza)) {
+        continue;
+      }
 
-    if (ocupada) {
-      continue;
-    }
+      const hayCasa = state.casas.some(
+        casa =>
+          casa.fila === destino.fila &&
+          casa.columna === destino.columna
+      );
 
-    const hayCasa = state.casas.some(
-      casa =>
-        casa.fila === destino.fila &&
-        casa.columna === destino.columna
-    );
-
-    if (hayCasa) {
-      return {
-        pieceId: pieza.id,
-        direction: direccion
-      };
-    }
-  }
-
-  // Si no puede conquistar, busca acercarse a una casa
-  let mejorDireccion = null;
-  let mejorDistancia = Infinity;
-
-  for (const direccion of direcciones) {
-    const destino = calcularDestino(
-      pieza.fila,
-      pieza.columna,
-      direccion,
-      state.dado
-    );
-
-    const ocupada = estaOcupada(
-      destino,
-      state.piezas,
-      pieza
-    );
-
-    if (ocupada) {
-      continue;
-    }
-
-    for (const casa of state.casas) {
-      const distancia = calcularDistancia(destino, casa);
-
-      if (distancia < mejorDistancia) {
-        mejorDistancia = distancia;
-        mejorDireccion = direccion;
+      if (hayCasa) {
+        return {
+          pieceId: pieza.id,
+          direction: direccion
+        };
       }
     }
   }
 
-  if (mejorDireccion !== null) {
-    return {
-      pieceId: pieza.id,
-      direction: mejorDireccion
-    };
+  // Prioridad 2:
+  // buscar qué ficha y dirección quedan más cerca de una casa
+  let mejorMovimiento = null;
+  let mejorDistancia = Infinity;
+
+  for (const pieza of piezasPropias) {
+    for (const direccion of direcciones) {
+      const destino = calcularDestino(
+        pieza.fila,
+        pieza.columna,
+        direccion,
+        state.dado
+      );
+
+      if (estaOcupada(destino, state.piezas, pieza)) {
+        continue;
+      }
+
+      for (const casa of state.casas) {
+        const distancia = calcularDistancia(destino, casa);
+
+        if (distancia < mejorDistancia) {
+          mejorDistancia = distancia;
+
+          mejorMovimiento = {
+            pieceId: pieza.id,
+            direction: direccion
+          };
+        }
+      }
+    }
+  }
+
+  if (mejorMovimiento !== null) {
+    return mejorMovimiento;
   }
 
   throw new Error("No hay movimientos válidos");
